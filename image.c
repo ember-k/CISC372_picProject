@@ -71,14 +71,14 @@ void* threads_convolute(void* arg){
     struct ConvoluteArgs* args = (struct ConvoluteArgs*)arg;
     Image* srcImage = args->srcImage;
     Image* destImage = args->destImage;
-    Matrix* algorithm = args->algorithm;
+    const Matrix* algorithm = args->algorithm;
 
     int row,pix,bit,span;
     span=srcImage->bpp*srcImage->bpp;
     for (row=args->start_row;row<args->end_row;row++){
         for (pix=0;pix<srcImage->width;pix++){
             for (bit=0;bit<srcImage->bpp;bit++){
-                destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithm);
+                destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,*algorithm);
             }
         }
     }
