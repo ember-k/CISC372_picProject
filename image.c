@@ -67,7 +67,7 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 //            destImage: A pointer to a  pre-allocated (including space for the pixel array) structure to receive the convoluted image.  It should be the same size as srcImage
 //            algorithm: The kernel matrix to use for the convolution
 //Returns: Nothing
-void* convolute(void* arg){
+void* threads_convolute(void* arg){
     struct ConvoluteArgs* args = (struct ConvoluteArgs*)arg;
     Image* srcImage = args->srcImage;
     Image* destImage = args->destImage;
@@ -88,7 +88,7 @@ void* convolute(void* arg){
 //Usage: Prints usage information for the program
 //Returns: -1
 int Usage(){
-    printf("Usage: image <filename> <type>\n\twhere type is one of (edge,sharpen,blur,gauss,emboss,identity)\n");
+    printf("Usage: image <filename> <type> <threads>\n\twhere type is one of (edge,sharpen,blur,gauss,emboss,identity)\n");
     return -1;
 }
 
@@ -107,17 +107,14 @@ enum KernelTypes GetKernelType(char* type){
 
 
 //main:
-//argv is expected to take 3 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm. Third is the desired number of threads.
-int main(int argc,char** argv, char* threads[]){
+//argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm followed by the desired number of threads.
+int main(int argc,char** argv) {
     long t1,t2;
     //t1 used to be here
     
 
-    int thread_count = strtol(threads[1], NULL, 10);
-    printf("thread count: ", thread_count); //delete
-
     stbi_set_flip_vertically_on_load(0); 
-    if (argc!=3) return Usage();
+    if (argc!=4) return Usage();
     char* fileName=argv[1];
     if (!strcmp(argv[1],"pic4.jpg")&&!strcmp(argv[2],"gauss")){
         printf("You have applied a gaussian filter to Gauss which has caused a tear in the time-space continum.\n");
@@ -134,7 +131,10 @@ int main(int argc,char** argv, char* threads[]){
     destImage.height=srcImage.height;
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
+    
     t1=time(NULL);
+    int thread_count = strtol(argv[3], NULL, 10);
+    printf("thread count: %d\n", thread_count); //delete
     pthread_t threads[thread_count];
     struct ConvoluteArgs args[thread_count];
 
@@ -142,12 +142,12 @@ int main(int argc,char** argv, char* threads[]){
     for (int p = 0; p < thread_count; p++) {
         args[p].srcImage = &srcImage;
         args[p].destImage = &destImage;
-        args[p].algorithm = algorithms[type];
+        args[p].algorithm = &algorithms[type];
 
         args[p].start_row = p * rows_per_thread;
         args[p].end_row = (p == thread_count - 1) ? srcImage.height : (p + 1) * rows_per_thread;
 
-        pthread_create(&threads[p], NULL, convolute, &args[p]);
+        pthread_create(&threads[p], NULL, threads_convolute, &args[p]);
     }
 
     for (int p = 0; p < thread_count; p++)
