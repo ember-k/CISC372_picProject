@@ -16,7 +16,7 @@ int thread_count;
 struct ConvoluteArgs {
     Image* srcImage;
     Image* destImage;
-    const Matrix* algorithm;
+    Matrix* algorithm;
     int start_row;
     int end_row;
 };
@@ -71,7 +71,7 @@ void* threads_convolute(void* arg){
     struct ConvoluteArgs* args = (struct ConvoluteArgs*)arg;
     Image* srcImage = args->srcImage;
     Image* destImage = args->destImage;
-    const Matrix* algorithm = args->algorithm;
+    Matrix* algorithm = args->algorithm;
 
     int row,pix,bit,span;
     span=srcImage->bpp*srcImage->bpp;
