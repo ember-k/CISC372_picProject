@@ -75,7 +75,7 @@ void convolute(Image* srcImage,Image* destImage,Matrix algorithm){
 //Usage: Prints usage information for the program
 //Returns: -1
 int Usage(){
-    printf("Usage: image <filename> <type>\n\twhere type is one of (edge,sharpen,blur,gauss,emboss,identity)\n");
+    printf("Usage: image <filename> <type> <threads>\n\twhere type is one of (edge,sharpen,blur,gauss,emboss,identity)\n");
     return -1;
 }
 
@@ -92,16 +92,13 @@ enum KernelTypes GetKernelType(char* type){
 }
 
 //main:
-//argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm.
-int main(int argc,char** argv, char* threads[]){
+//argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm followed by the desired number of threads.
+int main(int argc,char** argv){
     long t1,t2;
 //t1 used to be here
 
-    int thread_count = strtol(threads[1], NULL, 10);
-    printf("thread count: ", thread_count); //delete
-
     stbi_set_flip_vertically_on_load(0); 
-    if (argc!=3) return Usage();
+    if (argc!=4) return Usage();
     char* fileName=argv[1];
     if (!strcmp(argv[1],"pic4.jpg")&&!strcmp(argv[2],"gauss")){
         printf("You have applied a gaussian filter to Gauss which has caused a tear in the time-space continum.\n");
@@ -119,6 +116,8 @@ int main(int argc,char** argv, char* threads[]){
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
     t1=time(NULL);
+    int thread_count = strtol(argv[3], NULL, 10);
+    printf("thread count: ", thread_count); //delete
     #pragma omp parallel num_threads(thread_count)
     convolute(&srcImage,&destImage,algorithms[type]);
     t2=time(NULL);
