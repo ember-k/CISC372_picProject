@@ -117,7 +117,7 @@ int main(int argc,char** argv){
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
     t1=time(NULL);
     int thread_count = strtol(argv[3], NULL, 10);
-    printf("thread count: ", thread_count); //delete
+    printf("thread count: %d\n", thread_count); //delete
     #pragma omp parallel num_threads(thread_count)
     convolute(&srcImage,&destImage,algorithms[type]);
     t2=time(NULL);

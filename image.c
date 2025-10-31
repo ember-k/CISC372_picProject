@@ -67,7 +67,7 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 //            destImage: A pointer to a  pre-allocated (including space for the pixel array) structure to receive the convoluted image.  It should be the same size as srcImage
 //            algorithm: The kernel matrix to use for the convolution
 //Returns: Nothing
-void* convolute(void* arg){
+void* threads_convolute(void* arg){
     struct ConvoluteArgs* args = (struct ConvoluteArgs*)arg;
     Image* srcImage = args->srcImage;
     Image* destImage = args->destImage;
@@ -134,7 +134,7 @@ int main(int argc,char** argv) {
     
     t1=time(NULL);
     int thread_count = strtol(argv[3], NULL, 10);
-    printf("thread count: ", thread_count); //delete
+    printf("thread count: %d\n", thread_count); //delete
     pthread_t threads[thread_count];
     struct ConvoluteArgs args[thread_count];
 
@@ -142,12 +142,12 @@ int main(int argc,char** argv) {
     for (int p = 0; p < thread_count; p++) {
         args[p].srcImage = &srcImage;
         args[p].destImage = &destImage;
-        args[p].algorithm = algorithms[type];
+        args[p].algorithm = &algorithms[type];
 
         args[p].start_row = p * rows_per_thread;
         args[p].end_row = (p == thread_count - 1) ? srcImage.height : (p + 1) * rows_per_thread;
 
-        pthread_create(&threads[p], NULL, convolute, &args[p]);
+        pthread_create(&threads[p], NULL, threads_convolute, &args[p]);
     }
 
     for (int p = 0; p < thread_count; p++)
