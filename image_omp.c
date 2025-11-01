@@ -58,7 +58,6 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 //            algorithm: The kernel matrix to use for the convolution
 //Returns: Nothing
 void convolute(Image* srcImage,Image* destImage,Matrix algorithm){
-    int my_rank = omp_get_thread_num();
     int row,pix,bit,span;
     span=srcImage->bpp*srcImage->bpp;
 
@@ -95,7 +94,7 @@ enum KernelTypes GetKernelType(char* type){
 //argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm followed by the desired number of threads.
 int main(int argc,char** argv){
     long t1,t2;
-//t1 used to be here
+    t1=time(NULL);
 
     stbi_set_flip_vertically_on_load(0); 
     if (argc!=4) return Usage();
@@ -115,16 +114,14 @@ int main(int argc,char** argv){
     destImage.height=srcImage.height;
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
-    t1=time(NULL);
+    
     int thread_count = strtol(argv[3], NULL, 10);
-    printf("thread count: %d\n", thread_count); //delete
-    #pragma omp parallel num_threads(thread_count)
-    convolute(&srcImage,&destImage,algorithms[type]);
-    t2=time(NULL);
+    omp_set_num_threads(thread_count);    convolute(&srcImage,&destImage,algorithms[type]);
     stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
     stbi_image_free(srcImage.data);
     
     free(destImage.data);
+    t2=time(NULL);
     printf("Took %ld seconds\n",t2-t1);
    return 0;
 }
