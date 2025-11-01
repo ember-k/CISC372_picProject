@@ -1,0 +1,20 @@
+Script started on 2025-10-31 22:09:23-04:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="131" LINES="24"]
+emberk@cisc372:~/cisc372/assignment3/CISC372_picProject$ make clean
+rm -f image_original image_pthreads image_omp *.o output.png
+emberk@cisc372:~/cisc372/assignment3/CISC372_picProject$ make f[K[K
+gcc image_original.c -o image_original -lm
+gcc -pthread image.c -o image_pthreads -lm
+gcc -fopenmp image_omp.c -o image_omp -lm
+-----------------------------------------------
+Running serial, pthreads, and open_mp programs:
+-----------------------------------------------
+emberk@cisc372:~/cisc372/assignment3/CISC372_picProject$ l[K./im[Kmage_original pick[K1.jpeg[K[Kg edge [K
+Took 19 seconds
+emberk@cisc372:~/cisc372/assignment3/CISC372_picProject$ ./image_pthreads pic1.jpg edge 4
+Took 16 seconds
+emberk@cisc372:~/cisc372/assignment3/CISC372_picProject$ ./image_omp pic1.jpg edge 4[C[1P
+Took 17 seconds
+emberk@cisc372:~/cisc372/assignment3/CISC372_picProject$ exit
+exit
+
+Script done on 2025-10-31 22:14:44-04:00 [COMMAND_EXIT_CODE="0"]
