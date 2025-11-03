@@ -136,7 +136,8 @@ int main(int argc,char** argv) {
     struct ConvoluteArgs args[thread_count];
 
     int rows_per_thread = srcImage.height / thread_count;
-    for (int p = 0; p < thread_count; p++) {
+    int p,q;
+    for (p = 0; p < thread_count; p++) {
         args[p].srcImage = &srcImage;
         args[p].destImage = &destImage;
         args[p].algorithm = &algorithms[type];
@@ -147,8 +148,8 @@ int main(int argc,char** argv) {
         pthread_create(&threads[p], NULL, threads_convolute, &args[p]);
     }
 
-    for (int p = 0; p < thread_count; p++)
-        pthread_join(threads[p], NULL);
+    for (q = 0; q < thread_count; q++)
+        pthread_join(threads[q], NULL);
 
 
     stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
